@@ -1,0 +1,29 @@
+# ── Python ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# ── 凭据 / 本地配置（严禁提交）──────────────────────
+.env
+.env.*
+!.env.example
+*_secret*.py
+*_local.py
+
+# ── 行情数据与产物（本仓库不含）─────────────────────
+data/
+*.xlsx
+*.xls
+*板块深度分析_*.html
+_links.json
+*_verify_*.json
+
+# ── 系统 / 编辑器 ───────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A股板块深度分析系统 · 产品文档（PRD v1.0）</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#ffffff; --ink:#1c2330; --ink2:#4a5568; --ink3:#8a94a6;
+  --line:#e3e7ee; --line2:#eef1f6;
+  --red:#c62828; --green:#1b8a4c; --amber:#b8860b; --blue:#1f6feb; --purple:#6b3fa0;
+  --redbg:#fdecec; --greenbg:#e9f6ee; --amberbg:#fdf6e3; --bluebg:#eaf2fe; --purplebg:#f2ecfa;
+  --mono:"SF Mono",Menlo,Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;}
+.wrap{display:flex;max-width:1480px;margin:0 auto;gap:28px;padding:28px 24px 80px}
+nav{position:sticky;top:24px;align-self:flex-start;width:272px;flex:0 0 272px;max-height:calc(100vh - 48px);
+  overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 14px;font-size:13.5px}
+nav h4{margin:0 0 10px;font-size:12px;letter-spacing:.12em;color:var(--ink3);font-weight:700}
+nav a{display:block;color:var(--ink2);text-decoration:none;padding:4px 8px;border-radius:6px;line-height:1.5}
+nav a:hover{background:var(--bluebg);color:var(--blue)}
+nav a.sub{padding-left:20px;font-size:12.8px;color:var(--ink3)}
+nav a.top{margin-top:8px;font-weight:600;color:var(--ink)}
+main{flex:1;min-width:0}
+header.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:30px 34px;margin-bottom:22px}
+header.hero h1{margin:0 0 6px;font-size:26px;letter-spacing:-.01em}
+header.hero .sub{color:var(--ink3);font-size:14px;margin-bottom:18px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 22px;font-size:13.5px}
+.meta div{color:var(--ink2)}
+.meta b{color:var(--ink3);font-weight:600;margin-right:6px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 30px;margin-bottom:20px}
+h2{margin:0 0 16px;font-size:20px;padding-bottom:10px;border-bottom:2px solid var(--line2)}
+h2 .n{display:inline-block;min-width:30px;color:var(--blue);font-weight:800}
+h3{margin:26px 0 10px;font-size:16.5px;color:var(--ink)}
+h3:first-of-type{margin-top:14px}
+h4{margin:18px 0 8px;font-size:14.5px;color:var(--ink2)}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 22px;padding:0}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#f7f9fc;font-weight:600;color:var(--ink2);white-space:nowrap}
+td code,th code{font-family:var(--mono);font-size:12.4px;background:#f2f4f8;padding:1px 5px;border-radius:4px}
+code{font-family:var(--mono);font-size:12.8px;background:#f2f4f8;padding:1.5px 5px;border-radius:4px;color:#2d3748}
+pre{background:#1f2430;color:#e6edf3;border-radius:9px;padding:14px 18px;overflow-x:auto;font-family:var(--mono);
+  font-size:12.7px;line-height:1.65;margin:12px 0}
+pre code{background:none;color:inherit;padding:0}
+.b{display:inline-block;padding:1px 8px;border-radius:20px;font-size:12px;font-weight:600;line-height:1.7}
+.b-red{background:var(--redbg);color:var(--red)} .b-green{background:var(--greenbg);color:var(--green)}
+.b-amber{background:var(--amberbg);color:var(--amber)} .b-blue{background:var(--bluebg);color:var(--blue)}
+.b-purple{background:var(--purplebg);color:var(--purple)} .b-gray{background:#eef0f4;color:var(--ink3)}
+.box{border-left:4px solid;border-radius:0 8px 8px 0;padding:12px 18px;margin:14px 0;font-size:13.8px}
+.box.warn{border-color:#e0a800;background:#fffaeb}
+.box.danger{border-color:var(--red);background:var(--redbg)}
+.box.ok{border-color:var(--green);background:var(--greenbg)}
+.box.info{border-color:var(--blue);background:var(--bluebg)}
+.box b{display:block;margin-bottom:3px}
+.flow{display:flex;flex-wrap:wrap;gap:9px;align-items:stretch;margin:16px 0}
+.step{flex:1 1 132px;min-width:132px;background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:11px 12px}
+.step .id{font-family:var(--mono);font-size:11.5px;color:var(--blue);font-weight:700}
+.step .nm{font-size:13.6px;font-weight:600;margin:3px 0 4px}
+.step .ds{font-size:12.2px;color:var(--ink3);line-height:1.5}
+.step.hot{background:var(--redbg);border-color:#f0b6b6}
+.step.out{background:var(--greenbg);border-color:#b3ddc4}
+.mod{border:1px solid var(--line);border-radius:11px;margin:18px 0;overflow:hidden}
+.mod>.hd{background:#f7f9fc;padding:12px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mod>.hd .t{font-weight:700;font-size:15.5px}
+.mod>.hd .f{font-family:var(--mono);font-size:12.3px;color:var(--ink3)}
+.mod>.bd{padding:6px 18px 16px}
+.kv{display:grid;grid-template-columns:100px 1fr;gap:4px 12px;font-size:13.5px;margin:10px 0}
+.kv dt{color:var(--ink3);font-weight:600}
+.kv dd{margin:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+@media(max-width:1000px){.wrap{flex-direction:column;padding:16px}nav{position:static;width:100%;flex:auto;max-height:none}main{width:100%}}
+footer{text-align:center;color:var(--ink3);font-size:12.5px;padding:26px 0 10px}
+@media print{nav{display:none}section{break-inside:avoid}.wrap{display:block;max-width:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <h4>目录</h4>
+  <a class="top" href="#s0">0 · 文档信息</a>
+  <a class="top" href="#s1">1 · 产品概述</a>
+  <a class="sub" href="#s1-1">1.1 一句话定位</a>
+  <a class="sub" href="#s1-2">1.2 用户与场景</a>
+  <a class="sub" href="#s1-3">1.3 解决什么问题</a>
+  <a class="sub" href="#s1-4">1.4 边界</a>
+  <a class="top" href="#s2">2 · 系统总览</a>
+  <a class="sub" href="#s2-1">2.1 全链路流程图</a>
+  <a class="sub" href="#s2-2">2.2 模块清单</a>
+  <a class="sub" href="#s2-3">2.3 产物清单</a>
+  <a class="top" href="#s3">3 · 数据层</a>
+  <a class="sub" href="#s3-1">3.1 数据源</a>
+  <a class="sub" href="#s3-2">3.2 板块清单与代码映射</a>
+  <a class="sub" href="#s3-3">3.3 data/&lt;板块&gt;.json 字典</a>
+  <a class="sub" href="#s3-4">3.4 中间产物字典</a>
+  <a class="sub" href="#s3-5">3.5 叙事源 narratives.json</a>
+  <a class="top" href="#s4">4 · 模块详述</a>
+  <a class="sub" href="#m1">M1 collect.py</a>
+  <a class="sub" href="#m2">M2 swing.py / swing_fill.py</a>
+  <a class="sub" href="#m3">M3 charts.py</a>
+  <a class="sub" href="#m4">M4 render.py</a>
+  <a class="sub" href="#m5">M5 tech4.py</a>
+  <a class="sub" href="#m6">M6 push_bot_md.py</a>
+  <a class="sub" href="#m7">M7 push_webhook.py</a>
+  <a class="sub" href="#m8">M8 build_watchlist.py（Step G）</a>
+  <a class="sub" href="#m9">M9 build_track_table.py（Step H）</a>
+  <a class="sub" href="#m10">M10 watchdog_ashare.py</a>
+  <a class="sub" href="#m11">M11 离线回溯验证</a>
+  <a class="top" href="#s5">5 · 核心规则总表</a>
+  <a class="sub" href="#s5-1">5.1 选股漏斗与阈值</a>
+  <a class="sub" href="#s5-2">5.2 裁决矩阵速查</a>
+  <a class="sub" href="#s5-3">5.3 推送文案规格 v6</a>
+  <a class="sub" href="#s5-4">5.4 跟踪表状态机</a>
+  <a class="top" href="#s6">6 · 调度与运行</a>
+  <a class="top" href="#s7">7 · 风险与已知问题</a>
+  <a class="top" href="#s8">8 · 验收清单</a>
+  <a class="top" href="#s9">9 · 变更时间线</a>
+</nav>
+
+<main>
+
+<header class="hero">
+  <h1>A股板块深度分析系统 · 产品文档</h1>
+  <div class="sub">PRD v1.0 ｜ 覆盖「数据采集 → 技术体检 → 报告渲染 → 多通道推送 → 候选跟踪 → 质量巡检」全链路</div>
+  <div class="meta">
+    <div><b>文档版本</b>v1.0（首版）</div>
+    <div><b>输出日期</b>2026-09-29</div>
+    <div><b>板块范围</b>11 个常驻板块</div>
+    <div><b>数据来源</b>westock（腾讯自选股数据栈）</div>
+    <div><b>产品代号</b>研股股</div>
+    <div><b>代码基线</b><code>scripts/</code> 29 脚本 · 6,724 行</div>
+  </div>
+</header>
+
+<section id="s0">
+  <h2><span class="n">0</span>文档信息</h2>
+  <table>
+    <tr><th style="width:150px">项目</th><th>说明</th></tr>
+    <tr><td>文档定位</td><td>面向产品复盘的<b>全量系统说明书</b>：把 11 个模块「到底做了什么、按什么阈值做、失败了会怎样」逐条写清，作为后续调优、交接、验收的统一口径来源。</td></tr>
+    <tr><td>写作口径</td><td>所有逻辑、字段、阈值均<b>逐行核对源码</b>后写入。凡源码未实现的能力，本文件不会写成"已支持"。</td></tr>
+    <tr><td>与代码的关系</td><td><b>脚本是唯一事实来源</b>。本文件与代码冲突时以代码为准，并应回改本文件。</td></tr>
+    <tr><td>配套文件</td><td><code>改动清单_跟踪表改诚实_20260929.md</code>（跟踪表专项）· <code>信号有效性回溯验证报告_20260929.html</code>（回测）· 项目 <code>MEMORY.md</code>（长期口径）</td></tr>
+  </table>
+  <div class="box info"><b>颜色约定（本系统有两套，勿混）</b>
+    <b style="display:inline">① 裁决色（方向语义）</b>：🔴 偏强/进攻 · 🟡 中性 · 🟢 偏弱/谨慎（含追高风险），用于技术面四层与裁决 emoji。<br>
+    <b style="display:inline">② 涨跌色（行情语义，A股惯例）</b>：<span style="color:var(--red)">红 = 涨</span> · <span style="color:var(--green)">绿 = 跌</span> · 灰 = 平，用于所有行情数字。
+  </div>
+</section>
+
+<section id="s1">
+  <h2><span class="n">1</span>产品概述</h2>
+
+  <h3 id="s1-1">1.1 一句话定位</h3>
+  <p>把「一个 A 股板块到底该不该买、现在买还是等回踩、以及买哪几只」这三件靠人肉翻数据的事，<b>固化成一条每日自动跑、结论可直接执行、且留痕可回测的生产线</b>。</p>
+
+  <h3 id="s1-2">1.2 用户与使用场景</h3>
+  <table>
+    <tr><th style="width:110px">用户</th><th style="width:180px">场景</th><th>期望拿到什么</th></tr>
+    <tr><td rowspan="4">吉总<br><span style="color:var(--ink3);font-size:12.5px">（投研 / 兼 PM）</span></td>
+        <td>收盘后 15:15</td><td>手机飞书收到 11 板块日报卡片：每板块一句裁决 + 四层体检 + 可执行个股名单</td></tr>
+    <tr><td>想看深逻辑</td><td>点链接打开该板块 10 节深度 HTML（产业链/景气/多空/催化剂/PM七问）</td></tr>
+    <tr><td>要下自选股</td><td>当日「裁决 🔴」板块的已确认候选，自动写进腾讯自选股当日期分组</td></tr>
+    <tr><td>做调优复盘</td><td>候选跟踪表逐行留痕（当前状态/曾达档位/首破位日）+ 离线事件研究回测</td></tr>
+  </table>
+
+  <h3 id="s1-3">1.3 解决什么问题（痛点 → 做法）</h3>
+  <table>
+    <tr><th style="width:220px">原始痛点</th><th>本系统的做法</th><th style="width:130px">落地位置</th></tr>
+    <tr><td>人工判断「技术面偏弱」太笼统</td><td>拆成<b>四层可判定体检</b>（动能/结构/量能/位置），每层给指标 + 阈值 + 颜色</td><td>M5 tech4.py</td></tr>
+    <tr><td>评级与技术面打架时不知听谁</td><td>固化<b>三步裁决 + 四组决策树</b>：评级定方向、技术面定节奏、量能扣扳机；唯一例外是破位</td><td>M5 <code>_verdict()</code></td></tr>
+    <tr><td>「看到候选但错过买点」</td><td>候选落成<b>带价位的跟踪表</b>（买点区间/止损/目标1/目标2），每日刷新状态</td><td>M9</td></tr>
+    <tr><td>判断出主升浪但实际没涨</td><td>两次收紧确认口径（2026-09-02），加"真实 thrust"硬门槛；宁可少给也不给假信号</td><td>M4 / M5</td></tr>
+    <tr><td>「今天到底跑没跑」无从判断</td><td>独立看门狗按<b>文件系统事实</b>巡检 4 项产物，异常才告警</td><td>M10</td></tr>
+  </table>
+
+  <h3 id="s1-4">1.4 边界（明确不做的事）</h3>
+  <ul>
+    <li><b>不预测股价、不给买卖评级</b>。输出的是「技术面状态 + 与人工评级的匹配度 + 价位参考」；方向仍由人工评级（<code>narratives.json</code>）决定。</li>
+    <li><b>不做基本面建模</b>。财务/估值只做展示（PE/PB/市值），不做 DCF、不做盈利预测。</li>
+    <li><b>本文件只覆盖 A 股</b>。港美股另有 <code>hk-sector/</code>、<code>us-sector/</code> 两套同源脚本（HK/US 无 Step G/H）。</li>
+    <li><b>不自动交易</b>。只写自选股分组，不下单。</li>
+    <li><b>不臆造数据</b>。取不到就标 <code>[MISSING]</code> 或留空，绝不用估算填充。</li>
+  </ul>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>系统总览</h2>
+
+  <h3 id="s2-1">2.1 全链路流程图</h3>
+  <p>固定顺序、不可跳步。<span class="b b-red">红色</span>=有硬门槛的产出环节，<span class="b b-green">绿色</span>=对外交付环节。</p>
+  <div class="flow">
+    <div class="step"><div class="id">M1</div><div class="nm">collect.py</div><div class="ds">成分 → 行情 → 技术面<br>取 Top40 存 JSON</div></div>
+    <div class="step hot"><div class="id">M2</div><div class="nm">swing.py</div><div class="ds">40日K线 → 量能评分<br><b>不可省，缺则候选归零</b></div></div>
+    <div class="step"><div class="id">M3</div><div class="nm">charts.py</div><div class="ds">YTD 日线 + 同类板块<br>对比数据</div></div>
+    <div class="step hot"><div class="id">M4</div><div class="nm">render.py</div><div class="ds">10 节 HTML + 4 图<br>写 _summary.json</div></div>
+    <div class="step out"><div class="id">M6</div><div class="nm">push_bot_md.py</div><div class="ds">周吉清 bot<br>日报 + 链接 2 条</div></div>
+    <div class="step out"><div class="id">M7</div><div class="nm">push_webhook.py</div><div class="ds">小韭菜群<br>两张卡片</div></div>
+    <div class="step"><div class="id">M8</div><div class="nm">build_watchlist.py</div><div class="ds">Step G<br>写腾讯自选股</div></div>
+    <div class="step"><div class="id">M9</div><div class="nm">build_track_table.py</div><div class="ds">Step H<br>滚动跟踪表</div></div>
+  </div>
+  <div class="flow" style="margin-top:2px">
+    <div class="step" style="flex:1 1 100%;background:#f0f4fa;border-color:#cddcf0">
+      <div class="id">旁路 · 不参与主链</div>
+      <div class="nm">M5 tech4.py（被 M6/M7/M8/M9 调用）｜M10 watchdog_ashare.py（工作日 16:00 独立巡检）｜M11 verify_signals.py + verify_report.py（按需触发的事件研究回测）</div>
+    </div>
+  </div>
+
+  <h3 id="s2-2">2.2 模块清单</h3>
+  <table>
+    <tr><th style="width:40px">#</th><th style="width:168px">模块</th><th style="width:118px">输入</th><th style="width:146px">输出</th><th style="width:86px">实测耗时</th><th>失败影响</th></tr>
+    <tr><td>M1</td><td><code>collect.py</code><br><span style="color:var(--ink3);font-size:12.3px">188 行</span></td><td>westock 板块/行情/技术接口</td><td><code>data/&lt;板块&gt;.json</code> ×11</td><td>1'47" ~ 13'44"<br><span style="color:var(--ink3);font-size:12.3px">波动最大</span></td><td>链路断裂，当日无产物</td></tr>
+    <tr><td>M2</td><td><code>swing.py</code><br><code>swing_fill.py</code><br><span style="color:var(--ink3);font-size:12.3px">169 / 154 行</span></td><td>M1 的 universe + 40日K线</td><td>写回 <code>volGrade/volScore/swingLow</code></td><td>41"</td><td><b>候选全被判 0</b>（量能空）</td></tr>
+    <tr><td>M3</td><td><code>charts.py</code><br><span style="color:var(--ink3);font-size:12.3px">112 行</span></td><td>板块指数代码 + PEERS 清单</td><td><code>data/&lt;板块&gt;_chart.json</code> ×11</td><td>&lt;20"</td><td>报告图表降级，正文仍完整</td></tr>
+    <tr><td>M4</td><td><code>render.py</code><br><span style="color:var(--ink3);font-size:12.3px">749 行，最重</span></td><td>M1+M2+M3 + narratives.json</td><td>11 份 HTML + <code>_summary.json</code></td><td>&lt;20"</td><td>无报告、无推送</td></tr>
+    <tr><td>M5</td><td><code>tech4.py</code><br><span style="color:var(--ink3);font-size:12.3px">393 行</span></td><td><code>data/&lt;板块&gt;.json</code> + rating</td><td>四层体检 + 裁决结论</td><td>实时算</td><td>推送与 Step G/H 全错</td></tr>
+    <tr><td>M6</td><td><code>push_bot_md.py</code><br><span style="color:var(--ink3);font-size:12.3px">307 行</span></td><td><code>_summary.json</code></td><td>bot 私信 2 条（日报+链接）</td><td>54"</td><td>人看不到结论</td></tr>
+    <tr><td>M7</td><td><code>push_webhook.py</code><br><span style="color:var(--ink3);font-size:12.3px">375 行</span></td><td><code>_summary.json</code> + <code>_links.json</code></td><td>小韭菜群 2 张卡片</td><td>&lt;10"</td><td>群不收到</td></tr>
+    <tr><td>M8</td><td><code>build_watchlist.py</code><br><span style="color:var(--ink3);font-size:12.3px">75 行</span></td><td><code>_summary.json</code></td><td><code>_g_final.json</code> + 自选股分组</td><td>&lt;5"</td><td>自选股当日期分组缺失</td></tr>
+    <tr><td>M9</td><td><code>build_track_table.py</code><br><span style="color:var(--ink3);font-size:12.3px">525 行</span></td><td><code>_summary.json</code> + universe 现价</td><td><code>A股板块候选跟踪表.xlsx</code></td><td>&lt;10"</td><td>留痕断档（不可回补）</td></tr>
+    <tr><td>M10</td><td><code>watchdog_ashare.py</code><br><span style="color:var(--ink3);font-size:12.3px">273 行</span></td><td>mtime 事实</td><td>异常时飞书告警</td><td>&lt;3"</td><td>静默失败无人知</td></tr>
+    <tr><td>M11</td><td><code>verify_signals.py</code><br><code>verify_report.py</code><br><span style="color:var(--ink3);font-size:12.3px">434 + 617 行</span></td><td>跟踪表 + 日K线</td><td>回测 HTML 报告</td><td>按需</td><td>无（离线任务）</td></tr>
+  </table>
+  <div class="box warn"><b>M1 的耗时是不可控项</b>
+    westock 接口速度波动极大：最快 1'37"、最慢 13'44"（2026-09-08）。因此下游调度时点必须留足余量 —— 看门狗设在 16:00 而非 15:40，正是为此。</div>
+
+  <h3 id="s2-3">2.3 产物清单</h3>
+  <table>
+    <tr><th style="width:250px">产物</th><th style="width:130px">产生环节</th><th>说明</th></tr>
+    <tr><td><code>&lt;板块名&gt;板块深度分析_&lt;YYYYMMDD&gt;.html</code> ×11</td><td>M4</td><td>工作区根目录，每板块独立文件，<b>严禁合并</b>；自包含 10 节 + 4 图</td></tr>
+    <tr><td><code>data/_summary.json</code></td><td>M4</td><td>全链路中枢数据：M6/M7/M8/M9 全部读它</td></tr>
+    <tr><td><code>data/_links.json</code></td><td>M6</td><td>板块名 → 飞书云盘 URL 缓存，供 M7 复用（不重复上传）</td></tr>
+    <tr><td><code>data/_g_final.json</code></td><td>M8</td><td>当日自选股候选清单（codes + detail）</td></tr>
+    <tr><td><code>A股板块候选跟踪表.xlsx</code></td><td>M9</td><td>3 个 sheet：回抽确认 / 主升浪买点区 / 已归档（隐藏）</td></tr>
+    <tr><td><code>data/_watchdog_last_alert</code></td><td>M10</td><td>告警去重标记（同日只告警一次）</td></tr>
+    <tr><td><code>data/_verify_result.json</code> 等</td><td>M11</td><td>回测明细 + K线缓存（仅离线任务用）</td></tr>
+  </table>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>数据层</h2>
+
+  <h3 id="s3-1">3.1 数据源</h3>
+  <table>
+    <tr><th style="width:180px">项目</th><th>说明</th></tr>
+    <tr><td>唯一数据源</td><td>westock（腾讯自选股数据栈）。本地 CLI：<code>sector-webapp/westock_cli.js</code>（4.5 MB），以 <code>node &lt;CLI&gt; &lt;子命令&gt;</code> 调用</td></tr>
+    <tr><td>调用方式</td><td>各脚本统一封装 <code>run(args, retries=3)</code>：<b>超时 180s、最多重试 3 次、退避 2/4/6s</b>；返回 markdown 表格文本，由 <code>parse_table()</code> 解析为 list[dict]</td></tr>
+    <tr><td>用到的子命令</td><td><code>quote</code>（行情）· <code>technical</code>（MA/MACD/RSI）· <code>kline</code>（日K，<code>--fq qfq</code>）· <code>sector constituent</code>（成分股）· <code>sector search</code>（板块搜码）</td></tr>
+    <tr><td>兜底策略</td><td>接口报错或断连 → 该维度标 <code>[MISSING]</code> / 置 <code>None</code>，<b>不编造数字</b>，不静默失败</td></tr>
+    <tr><td>已知数据源局限</td><td>① 无独立「光模块」指数（只有 CPO 概念）② 申万三级指数盘中不跳动（PCB 已用概念指数替代）③ 部分个股 kline 接口返空（如 sz300725）</td></tr>
+  </table>
+
+  <h3 id="s3-2">3.2 板块清单与代码映射（11 常驻）</h3>
+  <table>
+    <tr><th style="width:32px">#</th><th style="width:100px">板块名</th><th style="width:150px">成分/数据代码</th><th style="width:130px">口径</th><th>说明</th></tr>
+    <tr><td>1</td><td>A股创新药</td><td><code>pt02131362</code></td><td>概念指数</td><td>创新药</td></tr>
+    <tr><td>2</td><td>算力</td><td><code>pt02GN2234</code></td><td>概念指数</td><td>算力租赁</td></tr>
+    <tr><td>3</td><td>半导体</td><td><code>pt02GN2116</code></td><td>概念指数</td><td>半导体产业</td></tr>
+    <tr><td>4</td><td>存储</td><td><code>pt02GN2124</code></td><td>概念指数</td><td>存储器</td></tr>
+    <tr><td>5</td><td>人形机器人</td><td><code>pt02GN2238</code></td><td>概念指数</td><td>—</td></tr>
+    <tr><td>6</td><td>光通信</td><td><code>pt02GN2190</code></td><td>概念指数</td><td>全链路：光芯片→光器件→光模块→光纤光缆→光设备</td></tr>
+    <tr><td>7</td><td>CPO</td><td><code>pt02GN2211</code></td><td>概念指数</td><td>共封装光模块；<b>与光通信不是子集关系</b>（成分仅重叠 17/40）</td></tr>
+    <tr><td>8</td><td>PCB</td><td>成分 <code>pt01850822</code><br>指数 <code>pt02101284</code></td><td>申万三级 + 概念指数</td><td>成分用申万三级「印制电路板」，行情/YTD 用 PCB 概念指数（申万三级盘中不跳动）</td></tr>
+    <tr><td>9</td><td>商业航天</td><td><code>pt02GN2306</code></td><td>概念指数</td><td>—</td></tr>
+    <tr><td>10</td><td>电网设备</td><td><code>pt01801738</code></td><td>申万二级</td><td>—</td></tr>
+    <tr><td>11</td><td>AI应用</td><td><code>pt02GN2343</code></td><td>概念指数</td><td>—</td></tr>
+  </table>
+  <h4>清单演变史</h4>
+  <table>
+    <tr><th style="width:110px">日期</th><th>变更</th><th>原因</th></tr>
+    <tr><td>2026-08-18</td><td>移除 证券 / 电力 / 光模块；新增 电网设备</td><td>聚焦产业主线，剔除金融公用与重复口径</td></tr>
+    <tr><td>2026-08-31</td><td>新增 AI应用</td><td>补齐 AI 应用侧</td></tr>
+    <tr><td>2026-09-04</td><td>移除 宇树科技概念</td><td>用户指令；data/narratives 留底</td></tr>
+    <tr><td>2026-09-23</td><td><b>移除 元件；新增 CPO</b></td><td>元件与 PCB 成分重叠 31/40 且弹性被被动元件稀释（去重）；CPO 与光通信互补故转正</td></tr>
+  </table>
+  <div class="box info"><b>改板块清单必须同步 8 处（漏一处就漂移）</b>
+    <code>collect.py SECTORS</code> · <code>charts.py SELF + PEERS + RUN_NAMES</code> · <code>render.py NAMES + NAR_KEYS</code> · <code>swing.py NAMES</code> · <code>swing_fill.py NAMES</code> · 两份 push 脚本标题「N板块」· <code>watchdog_ashare.py EXPECTED_SECTORS</code> · 自动化 prompt 名称+全文。
+  </div>
+
+  <h3 id="s3-3">3.3 数据字典：<code>data/&lt;板块&gt;.json</code></h3>
+  <p>外壳字段：<code>sector</code>（板块名）· <code>code</code> · <code>label</code> · <code>sector_quote</code>（板块指数行情）· <code>universe[]</code>（40 只成分明细）。</p>
+  <table>
+    <tr><th style="width:160px">字段</th><th style="width:100px">类型</th><th style="width:64px">来源</th><th>含义与硬约束</th></tr>
+    <tr><td><code>code</code> / <code>name</code></td><td>str</td><td>M1</td><td>个股代码（含 sh/sz 前缀）与名称</td></tr>
+    <tr><td><b><code>price</code></b></td><td>float</td><td>M1</td><td><b>当前价。字段名是 <code>price</code> 不是 <code>close</code></b>（踩坑过：误用 close 会得到「站上MA20 0/40」的假读数）</td></tr>
+    <tr><td><code>ma5/10/20/60/120/250</code></td><td>float</td><td>M1</td><td>六条均线</td></tr>
+    <tr><td><b><code>distMa20/60/120/250</code></b></td><td>float</td><td>M1</td><td>距各均线百分比，<b>正 = 在均线上方</b>。判「是否站上均线」一律用这些预算字段</td></tr>
+    <tr><td><code>chg/chg5d/chg20d/chg60d/chgYtd</code></td><td>float</td><td>M1</td><td>各周期涨跌幅（%）</td></tr>
+    <tr><td><code>rsi6/rsi12</code></td><td>float</td><td>M1</td><td>RSI。RSI6 ≥70 视为超买（仓位自动减半）</td></tr>
+    <tr><td><code>dif/dea/macd</code></td><td>float</td><td>M1</td><td>MACD 三值。<code>dif &gt; dea</code> = 红柱</td></tr>
+    <tr><td><b><code>volScore/volGrade/volDetail</code></b></td><td>int/str/str</td><td><b>M2</b></td><td>量能评分 0-100 / 分级 强≥75·中40-74·弱&lt;40 / 明细文本。<b>M1 阶段为空，必须跑 M2 才有值</b></td></tr>
+    <tr><td><code>swingLow/swingLowDate/swingHigh</code></td><td>float/str/float</td><td><b>M2</b></td><td>近 40 交易日最低/最高（失效价参考）</td></tr>
+    <tr><td><code>reboundPct/ddFromHigh</code></td><td>float</td><td><b>M2</b></td><td>自 swing low 反弹 % / 距 swing high 回撤 %</td></tr>
+    <tr><td><code>qbUptrend</code></td><td>bool</td><td>M1</td><td>季线多头：ma20 &gt; ma60 &gt; ma120</td></tr>
+    <tr><td><code>volRatio</code></td><td>float</td><td>M1</td><td><b>量比</b>（当日每分钟均量 / 过去 5 日每分钟均量）。盘中量能口径的关键输入</td></tr>
+    <tr><td><code>pe/peFwd/pb</code></td><td>float</td><td>M1</td><td>估值，仅展示，不参与裁决</td></tr>
+    <tr><td><code>mcap/fcap</code></td><td>float</td><td>M1</td><td>总市值 / 流通市值。<b>fcap 决定谁能进 Top40</b>；mcap 决定「核心公司画像」取前 12</td></tr>
+    <tr><td><code>hi52/lo52</code></td><td>float</td><td>M1</td><td>52周最高/最低。跟踪表「前高位置%」与「目标2」的基础</td></tr>
+    <tr><td><code>turnover/amount/date</code></td><td>float/str</td><td>M1</td><td>换手率 / 成交额 / 数据时点</td></tr>
+  </table>
+
+  <h3 id="s3-4">3.4 中间产物字典</h3>
+  <h4><code>data/_summary.json</code> — 中枢数据（M4 每次运行全量覆盖）</h4>
+  <pre><code>[
+  {
+    "name": "PCB",                  // 板块名
+    "rating": "加码",               // 人工评级（来自 narratives.json）
+    "position": "一句话投资逻辑",
+    "lag": "沪电股份-2.31% / ...",  // 落后补涨文案（推送用）
+    "s_ytd": 62.5, "s_20d": 3.1, "s_pe": 41.2,   // 板块指数行情
+    "bull": "...", "bear": "...",   // 多空首条
+    "path": "PCB板块深度分析_20260929.html",
+    "cands": [ { "name","code","distMa20","volScore","volGrade",
+                 "volDetail","rsi6","confirm" } ],
+    "mups":  [ { "name","code","price","distMa20","rsi6","volScore",
+                 "volGrade","volDetail","confirm","chg20d" } ],
+    "rating_qb": "偏强", "qb_state": "...", "qb_note": "..."   // 季度技术面辅助注记
+  }, ...
+]</code></pre>
+  <div class="box danger"><b>两个必须记住的约束</b>
+    ① <code>cands</code>/<code>mups</code> 里的 <code>confirm</code> = 「已确认 / 待确认」，<b>是推送与 Step G/H 的统一写入门槛</b>。<br>
+    ② <b>M4 哪怕只跑单板块，也会覆盖整个 <code>_summary.json</code></b>。做 ad-hoc 实验前必须先备份，跑完必须重跑全板块复原。
+  </div>
+
+  <h4><code>data/&lt;板块&gt;_chart.json</code>（M3）</h4>
+  <pre><code>{ "ytd": { "dates": [...], "close": [...] },        // 2026 年内日线，约 150 根
+  "peers": [ { "name","code","chg","chg20d","chg60d","chgYtd","pe","pb" } ] }</code></pre>
+
+  <h4><code>data/_g_final.json</code>（M8）</h4>
+  <pre><code>{ "codes": ["sz300476","sh688183"],              // 待写入自选股的代码
+  "detail": { "sz300476": { "name","sector","src":["cand","mup"],
+              "volGrade","volScore","distMa20","confirm" } } }</code></pre>
+  <div class="box warn"><b>已知局限</b>：N=0（无 🔴 板块）时也写 <code>{"codes": [], "detail": {}}</code>，与「M8 根本没跑」在文件层面无法区分 —— 看门狗只能弱提示，不判失败。</div>
+
+  <h3 id="s3-5">3.5 叙事源 <code>sector-webapp/data/narratives.json</code></h3>
+  <p>覆盖 29 个板块（含已退役板块留底）。键名格式 <code>"A股|规范名"</code>，与脚本短名通过 <code>render.py NAR_KEYS</code> 映射。</p>
+  <table>
+    <tr><th style="width:150px">字段</th><th style="width:100px">类型</th><th>用途（渲染到哪一节）</th></tr>
+    <tr><td><code>rating</code></td><td>str</td><td><b>人工评级</b>（加码/持有/观察…）→ 头条「人工评价」行 + M5 裁决的输入</td></tr>
+    <tr><td><code>state_desc</code></td><td>str</td><td>评级状态描述</td></tr>
+    <tr><td><code>essence</code></td><td>str</td><td>一句话投资逻辑 → 推送头条「｜<b>投资逻辑</b>」</td></tr>
+    <tr><td><code>chain[]</code></td><td>list</td><td>产业链地图：<code>{layer, note, stocks}</code> → 第 2 节</td></tr>
+    <tr><td><code>prosperity</code></td><td>dict</td><td>景气六维（policy 政策 / demand 需求 / price 价格 / earn 业绩 / tam 空间 / model 商业模式）→ 第 3 节</td></tr>
+    <tr><td><code>competition</code></td><td>str</td><td>竞争格局 → 第 4 节</td></tr>
+    <tr><td><code>bull[] / bear[]</code></td><td>list</td><td>多空辩论 → 第 6 节</td></tr>
+    <tr><td><code>catalysts[]</code></td><td>list</td><td>催化剂日历 → 第 7 节</td></tr>
+    <tr><td><code>pm_seven</code></td><td>dict(7)</td><td>PM 七问 → 第 1 节摘要</td></tr>
+    <tr><td><code>playbook</code></td><td>str</td><td>操作手册 → 第 9 节结论与行动</td></tr>
+    <tr><td><code>risks[]</code></td><td>list</td><td>风险提示 → 第 10 节</td></tr>
+  </table>
+  <div class="box ok"><b>满血 / 降级双模</b>
+    有对应叙事块 → <b>满血研究版</b>（产业链/景气/多空/催化剂/PM七问全部落地）。<br>
+    缺块 → 走 <code>_N_DEFAULT</code> 安全占位（<b>通用技术版</b>：定性节标占位，技术面与个股表照常产出）→ <b>绝不崩、也绝不编造叙事</b>。</div>
+</section>
+
+<section id="s4">
+<h2><span class="n">4</span>模块详述</h2>
+
+<div class="mod" id="m1">
+  <div class="hd"><span class="b b-blue">M1</span><span class="t">collect.py —— 数据采集</span>
+    <span class="f">scripts/collect.py · 188 行 · 1'47" ~ 13'44"</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>职责</dt><dd>把每个板块从「一个指数代码」变成「40 只成分股 × 完整行情技术字段」的结构化 JSON。</dd>
+      <dt>入口</dt><dd><code>python3 scripts/collect.py [板块名 ...]</code>（不传参 = 全 11 板块）</dd>
+    </dl>
+    <h4>处理流程（6 步）</h4>
+    <ol>
+      <li><b>板块自身行情</b>：<code>quote &lt;板块代码&gt;</code>；<b>PCB 例外</b> —— 走 <code>INDEX_OVERRIDE</code> 换成 PCB 概念指数 <code>pt02101284</code>（申万三级指数盘中不跳动）。</li>
+      <li><b>取成分股</b>：<code>sector constituent &lt;code&gt; --limit 220</code>。过滤规则：代码为空 → 剔除；名称含 <code>ST</code> → 剔除；北交所 <code>bj</code> 前缀 → 剔除（流动性差）。</li>
+      <li><b>批量行情</b>：<code>quote</code> 每批 40 只，批间 sleep 0.4s。</li>
+      <li><b>排序取 Top40</b>：按 <code>circulating_market_cap</code>（流通市值）降序取前 40。<span class="b b-amber">universe 口径的关键决策</span></li>
+      <li><b>技术指标</b>：<code>technical --group ma,macd,rsi</code>，每批 25 只。</li>
+      <li><b>组装 universe</b>：算 <code>distMa*</code>、<code>qbUptrend</code>；<code>swingLow</code> 等先置 <code>None</code>（交给 M2）。</li>
+    </ol>
+    <div class="box danger"><b>踩坑：技术面 25/批，首块偶发超时整块落空</b>
+      会静默产生一批 <code>ma20=None</code> 的个股 → 下游出现「站上MA20 0/40」的假读数。<b>每次跑完必须校验「该板块缺 MA20 的只数 == 0」</b>，否则单独重跑该板块。</div>
+    <div class="box info"><b>口径说明：为什么取 Top40 而不是全成分</b>
+      PCB 全成分 46 只、半导体 365 只。取流通市值 Top40 让「板块代表股」稳定可比，代价是<b>小市值弹性股会被挤出</b>（元件「独有 9 只全是被动元件」的假象正是这个机制造成的）。</div>
+  </div>
+</div>
+
+<div class="mod" id="m2">
+  <div class="hd"><span class="b b-blue">M2</span><span class="t">swing.py / swing_fill.py —— 量能评分与波段位</span>
+    <span class="f">169 / 154 行 · 41"</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>职责</dt><dd>为每只成分算 <code>volScore / volGrade</code>（量能三档）、<code>swingLow / swingHigh / reboundPct / ddFromHigh</code>，<b>写回</b> <code>data/&lt;板块&gt;.json</code>。</dd>
+      <dt>关键性</dt><dd><span class="b b-red">链路必经</span> 缺这一步 → <code>volGrade</code> 为空 → 回抽确认与主升浪候选被量能硬门槛<b>全部过滤为 0</b>（2026-08-12 实害）。</dd>
+    </dl>
+    <h4>量能评分算法（0-100 = 缩量分 50 + 放量分 50）</h4>
+    <table>
+      <tr><th style="width:110px">分量</th><th style="width:240px">定义</th><th>给分档位</th></tr>
+      <tr><td>缩量比 shrink</td><td>近 5 个<b>完整</b>交易日均量 ÷ 20 日均量</td><td>≤0.5 → +50 ｜ ≤0.8 → +30 ｜ ≤1.0 → +15 ｜ &gt;1.0 → 0</td></tr>
+      <tr><td>放量比 expand</td><td>盘中：取 <code>volRatio</code>（量比，时间归一化）<br>收盘：当日量 ÷ 近5日均量</td><td>≥1.2 → +50 ｜ ≥1.0 → +30 ｜ ≥0.8 → +15 ｜ &lt;0.8 → 0</td></tr>
+    </table>
+    <p>分级：<span class="b b-red">强 ≥75</span> <span class="b b-amber">中 40~74</span> <span class="b b-green">弱 &lt;40</span></p>
+    <div class="box warn"><b>盘中口径的三条修正（2026-08-13 固化）</b>
+      盘中当日 bar 未完成，直接用 <code>volume/v5</code> 会把放量比压到 0.1~0.5 → 量能几乎全判「弱」。修正：<br>
+      ① 缩量比只统计<b>已收盘的完整交易日</b>（剔除当日未完成 bar）；<br>
+      ② 放量比改用 <b>量比 volume_ratio</b>（定义天然时间归一化），无量比才退回上一完整交易日；<br>
+      ③ <b>开盘首 60 分钟放量分封顶 30</b>（集合竞价前置放量会让量比系统性虚高）。</div>
+    <h4>swing_fill.py 的存在理由</h4>
+    <p><code>swing.py</code> 是<b>整文件重写</b>：K线接口瞬断时，已算成功的个股会被这一轮的空值覆盖掉。故新增增量版 <code>swing_fill.py</code> —— <b>只补 <code>None</code>、绝不覆盖已有值</b>，可反复跑到覆盖满。<br>
+      用法：<code>python3 scripts/swing_fill.py &lt;板块名&gt; &lt;轮数&gt;</code></p>
+  </div>
+</div>
+
+<div class="mod" id="m3">
+  <div class="hd"><span class="b b-blue">M3</span><span class="t">charts.py —— 图表与同类板块对比数据</span>
+    <span class="f">112 行 · &lt;20"</span></div>
+  <div class="bd">
+    <dl class="kv"><dt>职责</dt><dd>为每板块准备两类绘图数据：① 板块指数 2026 年内 YTD 日线；② 3~5 个同类板块的横向对比。</dd></dl>
+    <ul>
+      <li><b>YTD 日线</b>：<code>kline &lt;code&gt; --period day --limit 150 --fq qfq</code>，过滤 <code>date ≥ 2026-01-01</code>（约 150 根）。</li>
+      <li><b>同类对比 <code>PEERS</code></b>：每板块手工维护 3~5 个同主题板块，取 <code>chg / chg20d / chg60d / chgYtd / pe / pb</code>。</li>
+      <li><b>动态搜码</b>：商业航天的「卫星互联网」peer 代码每次运行现搜（<code>sector search</code>），搜不到就把该 peer 剔除 —— 避免写死失效代码。</li>
+    </ul>
+    <div class="box warn"><b>降级表现</b>：若某板块 peer 代码大量失效（历史上「元件」发生过），<code>peers</code> 变短甚至为空 → 报告图表降级，<b>但正文与个股表照常产出</b>，不会因图缺而断链。</div>
+  </div>
+</div>
+
+<div class="mod" id="m4">
+  <div class="hd"><span class="b b-blue">M4</span><span class="t">render.py —— 报告渲染（全链路最重）</span>
+    <span class="f">749 行 · &lt;20"</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>职责</dt><dd>把 JSON 变成人看的报告：11 份 10 节自包含 HTML + 4 张 ECharts，并产出中枢文件 <code>_summary.json</code>。</dd>
+      <dt>入口</dt><dd><code>python3 scripts/render.py [板块名 ...]</code>；日期取当天，可用 <code>RUNDATE=YYYYMMDD</code> 覆盖（补跑用）</dd>
+    </dl>
+
+    <h4>① 候选判定的三条核心函数</h4>
+    <table>
+      <tr><th style="width:190px">函数</th><th>逻辑</th></tr>
+      <tr><td><code>classify(u)</code><br><span style="color:var(--ink3);font-size:12.5px">回抽分级</span></td><td><code>distMa20 &gt; 0</code> → 已站上MA20<br><code>-10 ≤ distMa20 ≤ 0</code> 且 <code>32 ≤ rsi6 ≤ 64</code> → <b>回抽确认候选</b><br><code>-20 ≤ distMa20 &lt; -10</code> → 接近/支撑观察<br>其余 → 未到确认位</td></tr>
+      <tr><td><code>is_main_uptrend(u)</code><br><span style="color:var(--ink3);font-size:12.5px">主升浪结构</span></td><td><code>ma20 &gt; ma60</code> <b>且</b> <code>ma20 &gt; ma10</code>（结构仍在生长，剔除见顶残差）<br><b>且</b> <code>chg20d ≥ 10%</code> <b>且</b> <code>chg5d ≥ -3%</code>（近段未转跌）</td></tr>
+      <tr><td><code>_mup_restart(u)</code><br><span style="color:var(--ink3);font-size:12.5px">重启确认</span></td><td>分支 A：<code>dif &gt; dea</code>（MACD 红柱 → 动量结构完好）<br>分支 B：<code>volRatio &gt; 1.2</code> <b>且</b> <code>chg &gt; 0</code>（真实 breakout thrust）</td></tr>
+    </table>
+
+    <h4>② 四个名单的口径（务必区分）</h4>
+    <table>
+      <tr><th style="width:140px">名单</th><th style="width:330px">口径</th><th>用途</th></tr>
+      <tr><td><code>cands</code><br><span style="color:var(--ink3);font-size:12.5px">回抽确认候选</span></td><td><code>classify == 回抽确认候选</code> <b>且</b> <code>volGrade ∈ (强,中)</code>，按 distMa20 升序</td><td>报告表 1</td></tr>
+      <tr><td><code>strict</code><br><span style="color:var(--ink3);font-size:12.5px">严格确认名单</span></td><td><code>-10 ≤ distMa20 ≤ 0</code> <b>且</b> <code>32 ≤ rsi6 ≤ 64</code> <b>且</b> <code>volGrade ∈ (强,中)</code></td><td><b>写进 <code>_summary.cands</code></b>，供推送与 Step G/H</td></tr>
+      <tr><td><code>mup</code><br><span style="color:var(--ink3);font-size:12.5px">主升浪买点区</span></td><td><code>is_main_uptrend</code> <b>且</b> <code>-15 ≤ distMa20 ≤ +5</code> <b>且</b> <code>volGrade ∈ (强,中)</code> <b>且</b> <code>_mup_restart</code></td><td>报告表 4 + <code>_summary.mups</code></td></tr>
+      <tr><td><code>core</code><br><span style="color:var(--ink3);font-size:12.5px">核心公司画像</span></td><td>按<b>总市值</b>降序取前 12</td><td>第 4 节 + 估值图</td></tr>
+    </table>
+    <div class="box info"><b><code>cands</code> 与 <code>strict</code> 是两套口径</b>
+      报告表 1 用 <code>cands</code>；推送与 Step G/H 用 <code>strict</code>（更严：额外要求 rsi6 落区间，且 distMa20 不从正数侧取）。<b>两者有意如此</b> —— 2026-08 起刻意让推送名单与报告表 1 的"严格口径"一致。</div>
+
+    <h4>③ 确认态（统一写入门槛）</h4>
+    <table>
+      <tr><th style="width:180px">类型</th><th>判定（M5 <code>tech4.py</code>）</th></tr>
+      <tr><td>回抽确认<br><code>pullback_confirm</code></td><td>条件2：<code>chg ≥ +0.5%</code> 且 <code>volRatio &gt; 1.2</code>（放量阳线）<br>条件3：<code>dif &gt; dea</code> 且 <code>chg ≥ 0</code> 且 <code>volRatio ≥ 1.1</code><br>满足任一 → <b>已确认</b>，否则 待确认</td></tr>
+      <tr><td>主升浪<br><code>main_uptrend_confirm</code></td><td>① <code>distMa20 &gt; 0</code> 且 <code>ma20 &gt; ma10</code><br>② <code>volRatio &gt; 1.5</code> 且 <code>chg &gt; 0</code><br>③ <code>dif &gt; dea</code><br>满足任一 → <b>已确认</b>，否则 待确认</td></tr>
+    </table>
+    <div class="box danger"><b>2026-09-02 的两次收紧（重要背景）</b>
+      旧口径把「下跌 + 缩量 + 边缘红柱」也判成"已确认"，导致"判断出回抽确认但实际没涨"。收紧后两个函数统一到<b>「真实 thrust」</b>标准：要求真实资金回流（量比硬门槛），剔除毛刺阳线与缩量假信号。</div>
+
+    <h4>④ 落后补涨候选的降级逻辑</h4>
+    <p>正常：取<b>当日涨跌幅最弱</b> 3 只。<br>
+      盘前/停牌导致全 board 当日涨跌幅全为 0 时：降级为<b>距 MA20 最弱</b>（先取前 10 再按市值取 3），并在报告里<b>显式标注口径</b>「距MA20仍为负」—— 避免把 distMa20 误读成当日涨跌幅。</p>
+
+    <h4>⑤ 报告结构：10 节 + 4 图</h4>
+    <div class="two">
+      <div>
+        <table>
+          <tr><th style="width:36px">节</th><th>标题</th></tr>
+          <tr><td>1</td><td>摘要与 PM 七问</td></tr>
+          <tr><td>2</td><td>板块定义与产业链地图</td></tr>
+          <tr><td>3</td><td>行业景气（价格周期 / TAM / 商业模式）</td></tr>
+          <tr><td>4</td><td>竞争格局与核心公司画像</td></tr>
+          <tr><td>5</td><td>估值全景</td></tr>
+          <tr><td>6</td><td>多空辩论</td></tr>
+          <tr><td>7</td><td>催化剂日历（未来 3~6 个月）</td></tr>
+          <tr><td>8</td><td><b>个股回抽确认位跟踪</b><br><span style="color:var(--ink3);font-size:12.5px">表1 回抽确认 / 表4 主升浪买点区 + 分级表</span></td></tr>
+          <tr><td>9</td><td>结论与行动映射</td></tr>
+          <tr><td>10</td><td>风险提示</td></tr>
+        </table>
+      </div>
+      <div>
+        <table>
+          <tr><th style="width:36px">图</th><th>内容</th></tr>
+          <tr><td>1</td><td>板块指数 YTD 走势（归一化为 %）</td></tr>
+          <tr><td>2</td><td>同类板块横向对比（YTD / 20日 / 60日）</td></tr>
+          <tr><td>3</td><td>估值全景（核心 12 只 PE / PB）</td></tr>
+          <tr><td>4</td><td>距 MA20 分布条形图<br><span style="color:var(--ink3);font-size:12.5px">红=回抽候选 ｜ 浅红=MA20 下方其他 ｜ 灰=已站上</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <p>报告末尾固定免责「本报告仅供研究参考，不构成个人投资建议」；缺数字段标 <code>[MISSING]</code> 不臆测。</p>
+  </div>
+</div>
+
+<div class="mod" id="m5">
+  <div class="hd"><span class="b b-blue">M5</span><span class="t">tech4.py —— 四层技术体检 + 评级裁决引擎</span>
+    <span class="f">393 行 · 被 M6/M7/M8/M9 共用</span></div>
+  <div class="bd">
+    <p><b>这是整个系统的"大脑"</b>：所有对外结论（推送头条、报告结论、自选股入选、跟踪表入选）都由它算出，因此<b>改动它等于改动全系统口径</b>。</p>
+    <h4>方法论前提</h4>
+    <div class="box info"><b>评级定方向 · 技术面定节奏 · 量能扣扳机</b>
+      评级回答「买什么、方向对不对」；技术面回答「什么时候买、买哪一档」。两者分歧时<b>只有 3 种情形可推翻评级</b>：① 产业逻辑被证伪 ② 中期趋势破位 ③ 仅结构/量能/位置弱 → 保留评级方向、只下调执行强度。</div>
+    <h4>四层体检（每层输出：指标文本 + 判定 + emoji）</h4>
+    <table>
+      <tr><th style="width:120px">层</th><th style="width:210px">指标</th><th>判定阈值</th></tr>
+      <tr><td>动能层 · 短期</td><td>站上MA20% · MACD红% · 20日涨幅中位</td><td><span class="b b-red">强</span> 站上MA20 ≥65% <b>且</b> MACD红 ≥60% <b>且</b> 中位 &gt; 0<br><span class="b b-green">弱</span> 站上MA20 ≤35% <b>或</b> 中位 ≤ -5%<br><span class="b b-amber">中性</span> 其余</td></tr>
+      <tr><td>结构层 · 中期</td><td>MA20&gt;MA60 占比 · 站上MA120 占比 ·（有则加）季线多头占比</td><td><span class="b b-red">偏强</span> 两项均 ≥60%<br><span class="b b-green">偏弱</span> 任一项 &lt;40%<br><span class="b b-amber">中性</span> 其余</td></tr>
+      <tr><td>量能层 · 确认</td><td>量能强/中/弱只数 · 量比<br><span style="color:var(--ink3);font-size:12.5px">量比取值优先级：板块量比 &gt; 个股量比中位 &gt; 放量比中位</span></td><td><span class="b b-red">已确认</span> 强占比 ≥20% <b>或</b> 量比 ≥1.30<br><span class="b b-green">缩量</span> 强 = 0 <b>且</b> 量比 &lt;0.85<br><span class="b b-amber">未确认</span> 其余</td></tr>
+      <tr><td>位置层 · 风险</td><td>距MA20 中位 · 龙头（20日涨幅前3）RSI6 区间</td><td><span class="b b-green">追高风险</span> 中位 &gt; +5% <b>或</b> 龙头 RSI6 &gt; 75<br><span class="b b-red">低吸区</span> -8% ≤ 中位 ≤ +2% <b>且</b> RSI6 ≤ 70<br><span class="b b-amber">中性</span> 其余</td></tr>
+    </table>
+    <h4>三步裁决（<code>_verdict()</code>）</h4>
+    <ol>
+      <li><b>破位安全阀</b>：<code>跌破MA60 的比例 ≥65%</code> <b>且</b> <code>MACD红占比 &lt;45%</code> → 判「破位」，<b>技术面胜出、评级滞后</b>（唯一推翻评级的常规情形）。</li>
+      <li><b>按评级分组</b>：加码/加仓 → <b>加码</b>组；持有 → <b>持有</b>组；减仓/清仓/放弃/对冲 → <b>清仓</b>组；其余 → <b>观察</b>组。</li>
+      <li><b>组内决策树</b>输出「两段式短标签」+ 一句话结论 + emoji。</li>
+    </ol>
+    <h4>四组决策树全量格位</h4>
+    <table>
+      <tr><th style="width:66px">组</th><th style="width:110px">格位</th><th style="width:60px">emoji</th><th>触发条件（简）</th></tr>
+      <tr><td rowspan="8">加码<br><span style="color:var(--ink3);font-size:12px">买哪档</span></td><td>破位预警</td><td>🟢</td><td>破位安全阀触发</td></tr>
+      <tr><td>双强共振</td><td>🔴</td><td>动能强 + 结构偏强 + 量能已确认</td></tr>
+      <tr><td>健康等回踩</td><td>🔴</td><td>动能强 + 结构偏弱 + 未确认（方向成立、等回踩）</td></tr>
+      <tr><td>反弹可参与</td><td>🟡</td><td>动能强 + 结构偏弱 + 已确认</td></tr>
+      <tr><td>结构已立</td><td>🟡</td><td>结构偏强 + 动能中性 + 未确认</td></tr>
+      <tr><td>健康回踩</td><td>🔴</td><td>动能弱 + 结构偏强</td></tr>
+      <tr><td>双弱背离</td><td>🟢</td><td>动能弱 + 结构偏弱</td></tr>
+      <tr><td>匹配执行</td><td>🟡</td><td>兜底：方向与技术面基本匹配</td></tr>
+      <tr><td rowspan="6">持有<br><span style="color:var(--ink3);font-size:12px">拿不拿</span></td><td>破位预警</td><td>🟢</td><td>破位 → 先减仓保护利润</td></tr>
+      <tr><td>双强共振</td><td>🔴</td><td>三确认 → <b>可考虑上调至加码</b></td></tr>
+      <tr><td>等回踩</td><td>🟡</td><td>动能强 + 结构弱 + 未确认 → 回踩是加仓点</td></tr>
+      <tr><td>反弹可参与</td><td>🟡</td><td>动能强 + 结构弱 + 已确认</td></tr>
+      <tr><td>健康回踩</td><td>🔴</td><td>动能弱 + 结构偏强</td></tr>
+      <tr><td>双弱背离</td><td>🟢</td><td>双弱 → 部分兑现</td></tr>
+      <tr><td rowspan="4">观察<br><span style="color:var(--ink3);font-size:12px">升不升</span></td><td>破位预警</td><td>🟢</td><td>坚决回避</td></tr>
+      <tr><td>可上调</td><td>🔴</td><td>三确认 → 可上调至持有/试仓</td></tr>
+      <tr><td>等确认</td><td>🟡</td><td>动能强但结构/量能未支持</td></tr>
+      <tr><td>回避／匹配执行</td><td>🟢／🟡</td><td>与评级一致偏弱／基本匹配</td></tr>
+      <tr><td rowspan="3">清仓<br><span style="color:var(--ink3);font-size:12px">何时卖</span></td><td>反弹卖</td><td>🟢</td><td>动能强 → 反弹是最佳减仓窗口</td></tr>
+      <tr><td>破位预警</td><td>🟢</td><td>共振破位 → 坚决离场</td></tr>
+      <tr><td>顺势走</td><td>🟢</td><td>兜底</td></tr>
+    </table>
+    <div class="box warn"><b>两条铁律</b>
+      ① 头条短标签<b>一律两段式「组・格局」</b>（含加码组），评级不单独进头条；<br>
+      ② <b>清仓/减仓组的 emoji 一律行动色 🟢</b>，即使技术反弹也不给进攻色，避免诱导反手。</div>
+  </div>
+</div>
+
+<div class="mod" id="m6">
+  <div class="hd"><span class="b b-green">M6</span><span class="t">push_bot_md.py —— 周吉清 bot 私信推送</span>
+    <span class="f">307 行 · 54"</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>职责</dt><dd>上传 11 份 HTML 到飞书云盘拿外链，再发 <b>2 条</b> markdown 消息（msg1 日报 / msg2 链接）。</dd>
+      <dt>目标</dt><dd>周吉清 bot，<code>open_id = ou_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>，<code>--as bot</code></dd>
+    </dl>
+    <h4>关键实现点</h4>
+    <ul>
+      <li><b>上传分批 BATCH = 5</b>：连续上传易触发 OOM（exit 137），故 5/5/1 三批。</li>
+      <li><code>--file</code> <b>只接受 CWD 相对路径</b>（绝对路径报 unsafe）；返回字段是 <code>file_token</code>（不是 token）。</li>
+      <li>上传后调 <code>lark_open_public</code> 把文件设为 <code>external_access / anyone_readable</code>，群成员才能点开。</li>
+      <li>URL 映射缓存进 <code>data/_links.json</code>，M7 复用、不重复上传。</li>
+      <li><b>失败重试</b>：个别板块上传失败 → <code>python3 scripts/retry_links.py --resend-links</code> 补传并重发 msg2。</li>
+    </ul>
+    <div class="box danger"><b>严禁清单</b>
+      ❌ bot 私信用 interactive 卡片　❌ <code>&lt;font&gt;/&lt;color&gt;</code> 等 HTML 标签（飞书 markdown 会原样显示，踩过坑）　❌ 逐板块 2 条　❌ 手工拼 markdown（规格已固化在脚本里，手拼必然漂移）</div>
+  </div>
+</div>
+
+<div class="mod" id="m7">
+  <div class="hd"><span class="b b-green">M7</span><span class="t">push_webhook.py —— 小韭菜群卡片推送</span>
+    <span class="f">375 行 · &lt;10"</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>职责</dt><dd>走飞书<b>自定义机器人 webhook</b>（不走 Open Platform app），把同样的结论推给外部群「小韭菜」。</dd>
+      <dt>入口</dt><dd><code>python3 scripts/push_webhook.py --links</code>（<code>--links</code> = 额外发「报告链接汇总」卡片）</dd>
+    </dl>
+    <ul>
+      <li>消息体 <code>{"msg_type":"interactive","card":{...}}</code>；<b>2 张卡片</b>：日报卡片（核心结论）+ 链接卡片。</li>
+      <li>外部群自定义机器人<b>不支持本地文件附件</b> → HTML 走云盘外链。</li>
+      <li>成功判据：返回 <code>StatusCode = 0</code>；失败必须明确告知、不静默。</li>
+      <li><b>仅 A 股调此步</b>（用户 2026-08-07 指定；港美股自动化不推此群）。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mod" id="m8">
+  <div class="hd"><span class="b b-blue">M8</span><span class="t">build_watchlist.py —— Step G 写腾讯自选股</span>
+    <span class="f">75 行 · &lt;5"</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>入选口径</dt><dd><b>裁决 emoji == 🔴 的板块</b>（tech4 实时算，<b>禁止按评级手筛</b>）</dd>
+      <dt>候选口径</dt><dd>该板块 <code>cands ∪ mups</code>，按 <code>code</code> 去重，<b>且 confirm == 已确认</b></dd>
+      <dt>输出</dt><dd><code>data/_g_final.json</code>，并打印 <code>BATCH n: code,code,...</code>（每批 ≤20，供批量写入接口用）</dd>
+    </dl>
+    <h4>分组规则</h4>
+    <ul>
+      <li>每天<b>新建</b>一个以运行日期命名的分组（格式 <code>YYMMDD</code>，如 <code>260929</code>；上限 8 字符）。</li>
+      <li>已存在同名分组则<b>复用</b>其 groupId，不重复建。</li>
+      <li><b>绝不删改任何历史分组</b>（含旧「回调买入」id=21）—— 历史由用户自行处理。</li>
+      <li><b>N=0 时跳过建组</b>（不建空分组），并输出明确文案。</li>
+    </ul>
+    <div class="box warn"><b>断连假失败的处置（必须记住）</b>
+      <code>portfolio_group_add</code> 返回 502 / SSL <code>SSLV3_ALERT_BAD_RECORD_MAC</code> 属<b>返回通道断连的假失败</b>（分组通常已在服务端建成）→ 必须先 <code>portfolio_watchlist_groups</code> 查列表复用 id，<b>绝不重试 group_add</b>（会建重复分组）。<br>
+      批量写入遇 <code>code=-106</code> 为部分写入假失败 → 二分定位未收录代码后重试剩余。写完必须核验 <code>total == len(N)</code>。</div>
+  </div>
+</div>
+
+<div class="mod" id="m9">
+  <div class="hd"><span class="b b-blue">M9</span><span class="t">build_track_table.py —— Step H 候选跟踪表</span>
+    <span class="f">525 行 · &lt;10" ｜ 全项目仅此一份（HK/US 无 Step H）</span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>职责</dt><dd>把「今天选出了谁、按什么价位、后来走到哪一步」逐行留痕，供复盘与回测。</dd>
+      <dt>入选口径<br><span style="color:var(--ink3);font-size:12px">比 Step G 宽</span></dt>
+      <dd>裁决 emoji == 🔴 <b>∪</b> 格局含「反弹可参与」<b>∪</b> 含「结构已立」<b>∪</b>「加码・匹配执行」<br><span style="color:var(--ink3)">⚠️ 仅<b>加码</b>组的匹配执行入选；持有/观察・匹配执行不入选。</span></dd>
+      <dt>候选门槛</dt><dd>仅 <code>confirm == 已确认</code></dd>
+    </dl>
+    <h4>表结构：2 个主 sheet + 1 个隐藏归档 sheet</h4>
+    <p><code>回抽确认</code>（cands） / <code>主升浪买点区</code>（mups）各自独立滚动、独立幂等；<code>已归档</code>（隐藏，23 列 = 21 主列 + 归档日 + 归档时状态）。</p>
+    <h4>21 列数据字典</h4>
+    <table>
+      <tr><th style="width:32px">列</th><th style="width:140px">列名</th><th>口径</th></tr>
+      <tr><td>1</td><td>日期</td><td>信号日（运行日 YYYYMMDD）</td></tr>
+      <tr><td>2</td><td>板块</td><td>板块名</td></tr>
+      <tr><td>3</td><td>板块形态</td><td>tech4 的 verdict_type（如「加码・匹配执行」）</td></tr>
+      <tr><td>4</td><td>信号类型</td><td>回抽确认 / 主升浪买点区</td></tr>
+      <tr><td>5</td><td>个股代码</td><td>6 位纯数字（已去 sz/sh 前缀）</td></tr>
+      <tr><td>6</td><td>个股名称</td><td>—</td></tr>
+      <tr><td>7</td><td>信号日现价</td><td><b>信号日冻结值</b>，不随行情变</td></tr>
+      <tr><td>8</td><td>信号日距MA20%</td><td>信号日冻结值</td></tr>
+      <tr><td>9</td><td>持有周期</td><td>回抽 → 短线 1~2 周；主升 → 波段 2~4 周（与实测持有期对齐）</td></tr>
+      <tr><td>10</td><td>建议仓位</td><td>回抽 → 标准仓 50%（两批）；主升 → 半仓 30~50%；RSI6 ≥70 加「超买减半」</td></tr>
+      <tr><td>11</td><td>买点区间</td><td>回抽 = <code>[ma20×0.97, ma20]</code>；主升 = <code>[ma20×0.85, ma20×1.05]</code>；若现价已破下限则区间从现价起</td></tr>
+      <tr><td>12</td><td>止损线</td><td><code>min(ma20, 买点下限×0.92)</code>，取更严者；<b>带中文后缀「（破MA20离场）」→ 解析必须用正则</b></td></tr>
+      <tr><td>13</td><td>目标1(MA60)</td><td><code>ma60</code>；若 <code>ma60 ≤ 现价</code> 则用 <code>现价×1.10</code> 兜底（实测 128/392 行走的是兜底）</td></tr>
+      <tr><td>14</td><td>目标2(前高+20%)</td><td><code>min(hi52, 买点上沿×1.20)</code>，且不低于目标1；<b>纯展示列</b>，可自由加后缀</td></tr>
+      <tr><td>15</td><td>52周前高</td><td>信号日冻结值</td></tr>
+      <tr><td>16</td><td>前高位置%</td><td><code>现价 ÷ 52周前高 × 100</code>。<b>越大越强</b>（2026-09-29 由「空间%」改）</td></tr>
+      <tr><td>17</td><td><b>当前状态</b></td><td>6 档阶梯，<b>每日刷新、可升可降</b></td></tr>
+      <tr><td>18</td><td><b>曾达档位</b></td><td>阶梯 max，<b>只升不降</b>。答「曾经到过哪」</td></tr>
+      <tr><td>19</td><td><b>首破位日</b></td><td>首次跌破止损线的日期，<b>只写一次</b>。答「何时出过局」</td></tr>
+      <tr><td>20</td><td>状态变更日</td><td>状态一旦变化即刷新为当日</td></tr>
+      <tr><td>21</td><td>确认态</td><td>已确认 / 待确认</td></tr>
+    </table>
+    <h4>目标阶梯 6 档（判定序从上到下，命中即停）</h4>
+    <table>
+      <tr><th style="width:100px">档位</th><th style="width:230px">条件</th><th>含义</th></tr>
+      <tr><td><span class="b b-green">已破位</span></td><td><code>现价 ≤ 止损线</code></td><td>已出局（终态语义，故置顶判定）</td></tr>
+      <tr><td>52周高位</td><td><code>现价 ≥ 52周前高 × 0.95</code></td><td>贴近/突破一年高点</td></tr>
+      <tr><td>逼近前高</td><td><code>现价 ≥ 52周前高 × 0.85</code></td><td>距前高 15% 以内</td></tr>
+      <tr><td>第一目标</td><td><code>现价 ≥ 目标1</code></td><td>已达止盈线</td></tr>
+      <tr><td>上涨中</td><td><code>买点下限 ≤ 现价 &lt; 目标1</code></td><td>在买点区上方运行</td></tr>
+      <tr><td>回调中</td><td><code>止损线 &lt; 现价 &lt; 买点下限</code></td><td>落在买点区下方（等回踩）</td></tr>
+    </table>
+    <p>该阶梯是<b>纯价格的单调函数</b>，因此「曾达档位」可直接取历史 max，无需额外路径标记。<br>
+      无现价时（个股掉出当日 universe）→ <b>当前状态留空</b>，不沿用已废弃的旧词表。</p>
+    <h4>滚动覆盖规则（2026-09-29 起）</h4>
+    <ul>
+      <li><b>去重键 =（板块, code）</b>，两个 sheet 各自独立。<span style="color:var(--ink3)">必须含板块 —— 同 sheet 内有 34(回抽)/7(主升) 只股跨板块重复，只按 code 会吞掉 41 个板块归属。</span></li>
+      <li><b>只对「今日有新信号」的键覆盖</b>：旧行移入归档表并从本表删除；<b>今日没有新信号的旧行原样保留</b>（口径 = 新数据产生才覆盖，不是无差别清表）。</li>
+      <li>覆盖时<b>继承</b>旧行的「曾达档位」「首破位日」（不可逆事实不该因换了个信号日被清零）。</li>
+      <li><b>同日重跑 = 更新而非删除重建</b>（否则会反复归档、幂等破坏）。</li>
+    </ul>
+    <div class="box danger"><b>实现层 4 个已踩坑（改这个脚本前必读）</b>
+      ① <code>ws.delete_rows()</code> 必须<b>从后往前</b>删（正序删会因索引位移漏删）；<br>
+      ② 删行后 <code>auto_filter.ref</code> 失效，必须重设；<br>
+      ③ <b>写行必须用 <code>_write_row()</code>（显式 max_row+1），禁用 <code>ws.append()</code></b> —— openpyxl 的 append 游标会被「探测空 sheet 的 <code>ws.cell(1,1)</code>」推高，导致表头落到第 2 行 + 重跑重复插表头；<br>
+      ④ <code>num()</code> 必须用前导数字正则 —— 止损线单元格带中文后缀，裸 <code>float()</code> 会解析成 <code>None</code>，导致「已破位」永远写不出来。</div>
+    <div class="box warn"><b>落改前必检 <code>data/_summary.json</code> 新鲜度</b>
+      Step H 的日期取「当天」，而候选来自 <code>_summary.json</code>。若它已过期，跑 <code>main()</code> 会用旧数据造出「今天」的假行。<b>只做表头/存量列修正时，直接调 <code>_ensure_header</code> + <code>_backfill_pos52</code> 后保存，不要跑 <code>main()</code>。</b></div>
+  </div>
+</div>
+
+<div class="mod" id="m10">
+  <div class="hd"><span class="b b-purple">M10</span><span class="t">watchdog_ashare.py —— 独立看门狗</span>
+    <span class="f">273 行 · 独立自动化 工作日 16:00</span></div>
+  <div class="bd">
+    <div class="box danger"><b>它为什么存在</b>
+      2026-09-28 主任务按时触发，但会话的<b>首个模型请求即被拒</b>（<code>429 queue.full</code> / <code>category=quota</code> / <code>attempt=1/1</code>），2 秒后进程被 SIGTERM —— <b>0 工具调用、0 产物、0 告警</b>，用户次日才发现。看门狗就是为这个盲区加的。</div>
+    <h4>四项判据（只认文件系统事实，不猜）</h4>
+    <table>
+      <tr><th style="width:44px">#</th><th style="width:220px">对象</th><th>判据</th><th style="width:70px">权重</th></tr>
+      <tr><td>1</td><td><code>data/_summary.json</code></td><td>mtime 是否为今日</td><td><b>硬判</b></td></tr>
+      <tr><td>2</td><td>当日 HTML 报告</td><td>期望数取 <code>_summary.json</code> 的板块条数（不可读则回退 11），缺一即异常</td><td><b>硬判</b></td></tr>
+      <tr><td>3</td><td><code>A股板块候选跟踪表.xlsx</code></td><td>mtime 是否为今日（Step H 是否执行）</td><td><b>硬判</b></td></tr>
+      <tr><td>4</td><td><code>data/_g_final.json</code></td><td>mtime 是否为今日</td><td>软提示（N=0 也写空值，无法区分，故不判失败）</td></tr>
+    </table>
+    <p><b>判定输出</b>：全过 → 「当日产物齐备」静默退出；有硬判项失败 → 「主任务未产出 / 产物不完整」并告警。</p>
+    <h4>通道与去重</h4>
+    <ul>
+      <li>主通道：<code>lark-cli</code> 私信周吉清 bot；<b>失败降级</b> → 小韭菜群 webhook（纯 HTTP，无 CLI 依赖），文案标注「降级通道」。</li>
+      <li>去重文件 <code>data/_watchdog_last_alert</code>：<b>同日只告警一次</b>。</li>
+      <li>参数：<code>--dry-run</code> / <code>--selftest</code>（通道自检） / <code>--date YYYYMMDD</code> / <code>--force</code> / <code>--mute-today</code>。</li>
+      <li>退出码：0 = 正常（含静默成功）｜1 = 检出异常（已告警）｜2 = 脚本自身错误。</li>
+    </ul>
+    <div class="box warn"><b>⚠️ 看门狗的能力边界（必须理解，否则会误判）</b>
+      它判「齐备」只代表<b>文件系统上有当日产物</b>，<b>不代表定时任务跑成功了</b>。<br>
+      实例：2026-09-29 定时任务失败（0 产物），产物来自会话内手动补跑 → 看门狗 16:00 看到产物齐备、静默退出，判「正常」<b>掩盖了自动化本身失败</b>。<br>
+      另两条同源局限：① xlsx 只认 mtime，存在「Step H 漏跑但 mtime 仍今日」的假通过风险；② 看门狗自身也是模型驱动的自动化，若同时段全局限流可能一起失效。<br>
+      <b>要「连限流都不怕」，需改用 macOS launchd 直接跑该脚本（纯 HTTP/webhook，不经模型）。</b></div>
+  </div>
+</div>
+
+<div class="mod" id="m11">
+  <div class="hd"><span class="b b-gray">M11</span><span class="t">verify_signals.py + verify_report.py —— 离线回测</span>
+    <span class="f">434 + 617 行 · 按需触发，<b>不入自动化</b></span></div>
+  <div class="bd">
+    <dl class="kv">
+      <dt>动机</dt><dd>跟踪表原「状态」列按<b>当日快照价</b>机械判定、<b>没有路径概念</b>（不记录是否曾触及止损、不区分先止损还是先止盈）→ 不能当成败依据。故改用日K线做真正的事件研究。</dd>
+      <dt>方法</dt><dd>Event Study。<b>入场</b>：信号日收盘落在买点区 → 按收盘入场；否则次日起首个「日内触及买点区」的日子按区间挂单成交（价 = clamp(open, lo, hi)）；<b>开盘即跌破下限</b>判「跳空破位，信号失效」不入场。<br><b>出场</b>：逐日推进，触及止损按 <code>min(open, stop)</code> 成交（跳空低开更差，贴合实际）；触及目标按目标价成交；<b>同日既触止损又触目标 → 保守计止损</b>并单独披露。</dd>
+    </dl>
+    <h4>首次基线结果（2026-08-18 ~ 09-28，392 行 / 161 只）</h4>
+    <table>
+      <tr><th style="width:140px">指标</th><th style="width:100px">数值</th><th>解读</th></tr>
+      <tr><td>期望收益</td><td><span class="b b-green">−1.38%</span></td><td>全样本负期望</td></tr>
+      <tr><td>收益中位</td><td>−4.44%</td><td>—</td></tr>
+      <tr><td>正收益占比</td><td>38.4%</td><td>「仅已了结胜率 57.1%」是<b>幸存者偏差</b></td></tr>
+      <tr><td>盈亏比</td><td>0.92</td><td>&lt;1，结构性亏损</td></tr>
+    </table>
+    <p><b>三条结构性病因</b>：① 主升浪止损过宽（止损 −23.8% vs 目标1 +10.8% → 风险收益比 2.2）；② 目标1 过近（T1:T2 = 129:12）且无移动止盈；③ 无市场环境过滤（20 个信号日胜率 0%~100%）。</p>
+    <p><b>最有价值的规律</b>：失败样本 60% 入场后 MFE&lt;2%（几乎没赚过）；成功样本 76% 在 10 个交易日内达标 → <b>加「5 日且 MFE&lt;2% 时间止损」可把持有中组从 −5.45% 改善到 −1.38%</b>（唯一不需要改选股逻辑的改进）。</p>
+    <div class="box warn"><b>外推限制</b>：样本仅 6 周且为单一上涨市 → 胜率与板块结论<b>不可外推</b>。</div>
+  </div>
+</div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>核心规则总表</h2>
+
+  <h3 id="s5-1">5.1 选股漏斗与阈值</h3>
+  <table>
+    <tr><th style="width:50px">层</th><th style="width:150px">筛选</th><th>条件</th><th style="width:140px">淘汰后果</th></tr>
+    <tr><td>0</td><td>成分池</td><td>剔除 ST、剔除北交所；按<b>流通市值</b>取 Top40</td><td>小市值弹性股出局</td></tr>
+    <tr><td>1</td><td>回抽候选</td><td><code>-10% ≤ distMa20 ≤ 0</code> 且 <code>32 ≤ rsi6 ≤ 64</code></td><td>—</td></tr>
+    <tr><td>2</td><td>回抽 · 量能门槛</td><td><code>volGrade ∈ (强, 中)</code></td><td>弱量能全剔</td></tr>
+    <tr><td>3</td><td>回抽 · <b>推送名单</b></td><td>再要求 <code>-10% ≤ distMa20 ≤ 0</code>（不从正侧取）且 rsi6 落区间</td><td>推送名单比报告表1 更严</td></tr>
+    <tr><td>4</td><td><b>确认态门槛</b></td><td><code>confirm == 已确认</code>（放量阳线 / MACD金叉+量比门槛）</td><td><b>写自选股 / 写跟踪表的统一硬门槛</b></td></tr>
+    <tr><td>1'</td><td>主升浪候选</td><td><code>ma20&gt;ma60 且 ma20&gt;ma10</code> 且 <code>chg20d≥10%</code> 且 <code>chg5d≥-3%</code> 且 <code>-15% ≤ distMa20 ≤ +5%</code></td><td>—</td></tr>
+    <tr><td>2'</td><td>主升浪 · 量能门槛</td><td><code>volGrade ∈ (强, 中)</code></td><td>弱量能全剔</td></tr>
+    <tr><td>3'</td><td>主升浪 · 重启确认</td><td><code>_mup_restart</code>：MACD 红柱 <b>或</b>（量比&gt;1.2 且阳线）</td><td>—</td></tr>
+  </table>
+  <div class="box info"><b>为什么量能是硬门槛</b>：形态像主升但量能不确认的票，2026-09-02 实测全被正确排除（当天主升浪 = 0，属真实市场状态而非误杀）。<b>宁可给 0，不给假信号。</b></div>
+
+  <h3 id="s5-2">5.2 评级 × 技术面裁决矩阵（速查）</h3>
+  <table>
+    <tr><th style="width:100px">评级组</th><th>动能强</th><th>动能弱</th><th style="width:150px">破位（安全阀）</th></tr>
+    <tr><td><b>加码</b></td>
+      <td>结构强+确认 → <span class="b b-red">🔴双强共振</span><br>结构弱+未确认 → <span class="b b-red">🔴健康等回踩</span><br>结构弱+已确认 → <span class="b b-amber">🟡反弹可参与</span><br>结构中性+未确认 → <span class="b b-amber">🟡结构已立</span></td>
+      <td>结构强 → <span class="b b-red">🔴健康回踩</span><br>结构弱 → <span class="b b-green">🟢双弱背离</span></td>
+      <td rowspan="4" style="background:var(--redbg)"><b>技术面胜出</b><br>破位预警 🟢<br><span style="color:var(--ink3);font-size:12.5px">跌破MA60 ≥65%<br>且 MACD红 &lt;45%</span></td></tr>
+    <tr><td><b>持有</b></td>
+      <td>结构强+确认 → <span class="b b-red">🔴可考虑上调</span><br>结构弱+未确认 → <span class="b b-amber">🟡等回踩（加仓点）</span><br>结构弱+已确认 → <span class="b b-amber">🟡反弹可参与</span></td>
+      <td>结构强 → <span class="b b-red">🔴健康回踩</span><br>结构弱 → <span class="b b-green">🟢双弱背离（部分兑现）</span></td></tr>
+    <tr><td><b>观察</b></td>
+      <td>结构强+确认 → <span class="b b-red">🔴可上调</span><br>其余 → <span class="b b-amber">🟡等确认</span></td>
+      <td><span class="b b-green">🟢回避</span></td></tr>
+    <tr><td><b>清仓/减仓</b></td>
+      <td colspan="2"><span class="b b-green">🟢反弹卖</span>（反弹是最好的离场窗口，<b>不在反弹中反手加回</b>）／<span class="b b-green">🟢顺势走</span></td></tr>
+  </table>
+
+  <h3 id="s5-3">5.3 推送文案规格 v6</h3>
+  <pre><code>📊 研股股·A股11板块深度分析日报（20260929）
+
+候选代码汇总：回抽确认 300476,002384 ｜ 主升浪买点区 —
+（纯 6 位、跨板块去重；口径与 Step H 跟踪表一致）
+
+1. 🔴 **【加码・健康等回踩】PCB**｜**一句话投资逻辑**
+　　**人工评价**：🔴 加码
+　　**技术分析（40 只成分）：**
+　　　　动能层・短期　站上MA20 62%・MACD红 55%・20日中位 +2.1%　🟡中性
+　　　　结构层・中期　MA20&gt;MA60 58%・站上MA120 71%・季线多头 55%　🟡中性
+　　　　量能层・确认　量能 6强/12中/22弱・板块量比 1.05　🟡未确认
+　　　　位置层・风险　距MA20中位 -3.2%・龙头RSI6 51~68　🔴低吸区
+　　**结论：🔴【加码・健康等回踩】方向成立、等回踩，仓位落紧贴 MA20 的低位标的**
+　　**个股分析：**
+　　　　落后补涨：🔵🟢个股1-2.31% / 🔵🟢个股2-1.80% / 🔵🔴个股3
+　　　　回抽确认：🔵胜宏科技(-6.86%) / 🔵东山精密(-2.84%)
+　　　　主升浪买点区：🔵生益电子(距MA20+1.20%, 近20日+15.3%, 量能强)
+
+… （11 个板块依次）
+
+🔴 加码：PCB / A股创新药
+🟡 持有：光通信 / CPO / AI应用
+🟢 观察：人形机器人 / 商业航天
+
+&gt; 数据来源 westock-mcp / WebSearch；量化回抽模型输出，仅供参考，不构成投资建议。</code></pre>
+  <div class="box warn"><b>格式硬规则</b>
+    · 分隔符统一<b>日文中点 ・</b>（U+30FB）　· 四层行与个股明细<b>不加粗</b>；仅 头条/人工评价/技术分析标题/结论/个股分析标题 加粗<br>
+    · 落后补涨、回抽确认、主升浪买点区个股名前<b>统一加 🔵</b>，其后涨🔴跌🟢紧随<br>
+    · 汇总行 <b>加码/持有/观察 三行必须分开</b>，不得合并<br>
+    · 全部内容由 <code>scripts/push_bot_md.py</code> 自动拼装，<b>严禁手写</b>（否则必然与脚本口径漂移）</div>
+
+  <h3 id="s5-4">5.4 跟踪表状态机（速查）</h3>
+  <table>
+    <tr><th style="width:120px">列</th><th style="width:90px">变更性</th><th>回答的问题</th></tr>
+    <tr><td><b>当前状态</b></td><td>每日刷新<br>可升可降</td><td>「<b>今天</b>在哪一格」—— 6 档阶梯判定，纯价格的单调函数</td></tr>
+    <tr><td><b>曾达档位</b></td><td>只升不降</td><td>「<b>曾经</b>到过哪一格」—— 阶梯历史 max</td></tr>
+    <tr><td><b>首破位日</b></td><td>只写一次</td><td>「<b>何时</b>出过局」—— 首次破位日期</td></tr>
+    <tr><td><b>状态变更日</b></td><td>变化即刷新</td><td>状态最近一次变动发生在哪天</td></tr>
+  </table>
+  <div class="box ok"><b>「曾达档位」的价值（2026-09-29 量化）</b>
+    ① 74.7%（293/392）的行，曾达档位 &gt; 当前档位 → 只看状态列会以为这些票"一直很弱"。<br>
+    ② 曾达 ≥ 第一目标（n=141）收益中位 <b>+6.88%</b> / 正收益 <b>77.3%</b>；曾达止步于上涨中及以下（n=242）<b>−7.33%</b> / <b>15.7%</b> → 差 <b>14.2pp / 61.6pp</b>，正好把"选股对了但卖点没做好"和"信号本身没选出东西"分开。<br>
+    ⚠️ 该列数值要等行情走完才确定，<b>是结果不是原因，不可当选股因子</b>。</div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>调度与运行</h2>
+  <table>
+    <tr><th style="width:240px">自动化</th><th style="width:140px">时点</th><th>职责</th></tr>
+    <tr><td>A股板块深度分析批量推送<br><code>automation-1785907892211</code></td><td><b>工作日 15:15</b></td><td>M1→M9 全链路（原 15:10，2026-09-29 错峰至 15:15 以避整点限流）</td></tr>
+    <tr><td>A股自动化看门狗<br><code>e7cd8125-…</code></td><td><b>工作日 16:00</b></td><td>M10 产物巡检（设在主任务后：最慢 collect 记录 13'44"，留足余量）</td></tr>
+    <tr><td>港股板块深度分析</td><td>工作日 16:20</td><td>同源脚本（<code>hk-sector/</code>），HKD 计价、无 Step G/H</td></tr>
+    <tr><td>美股板块深度分析</td><td>工作日 22:30</td><td>同源脚本（<code>us-sector/</code>）</td></tr>
+  </table>
+  <h4>手动分步运行（补跑 / 调试）</h4>
+  <pre><code>cd &lt;WORKSPACE&gt;
+PY=&lt;PYTHON_VENV&gt;/bin/python   # openpyxl 只在此环境
+
+$PY scripts/collect.py            # 全 11 板块，或指定板块名
+$PY scripts/swing.py              # 必跑；有缺口 → swing_fill.py &lt;板块&gt; &lt;轮数&gt;
+$PY scripts/charts.py
+$PY scripts/render.py             # 可用 RUNDATE=YYYYMMDD 覆盖日期
+$PY scripts/push_bot_md.py
+$PY scripts/push_webhook.py --links
+$PY scripts/build_watchlist.py    # Step G
+$PY scripts/build_track_table.py  # Step H</code></pre>
+  <div class="box warn"><b>补跑前置检查（缺一不可）</b>
+    ① 校验「每个板块缺 MA20 只数 == 0」；② 校验 <code>volGrade</code> 覆盖（如 439/440）；③ 确认 <code>_summary.json</code> 已刷新为当日（Step H 依赖它）。</div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>风险与已知问题</h2>
+
+  <h3>7.1 高频风险：定时任务静默失败（≈21% 交易日）</h3>
+  <table>
+    <tr><th style="width:150px">项目</th><th>内容</th></tr>
+    <tr><td>现象</td><td>08-18 以来 <b>6 个交易日</b>零产物、脚本未执行：08-24 / 09-11 / 09-21 / 09-22 / 09-24 / 09-28</td></tr>
+    <tr><td>已定位根因</td><td>09-28 实测为 <code>429 queue.full</code> / <code>category=quota</code> → 2 秒 SIGTERM（只允许 1 次重试，一次限流即整体放弃）</td></tr>
+    <tr><td>排查方法</td><td>三判据：① 该日无 <code>*板块深度分析_*.html</code> ② <code>~/.workbuddy/logs/&lt;date&gt;/*007-指数行业分析*.log</code> 中 <code>collect.py</code>/<code>render.py</code> 命中数为 0（成功日 ≈ 9/3） ③ 日志尾为 <code>ProcessExit signal SIGTERM</code>。<b>不要只看日志是否存在</b>（每天都有）</td></tr>
+    <tr><td>缓解措施</td><td>① 错峰至 15:15（已做）② 独立看门狗 16:00 巡检（已做）③ <b>根治方案未落</b>：改 macOS launchd 直接跑脚本，避开模型层限流</td></tr>
+    <tr><td>不可补做</td><td>collect 取实时 quote、<b>无历史截面</b> → 当日缺失的报告无法事后补齐</td></tr>
+  </table>
+
+  <h3>7.2 口径与实现类风险</h3>
+  <table>
+    <tr><th style="width:190px">风险</th><th style="width:60px">等级</th><th>说明与处置</th></tr>
+    <tr><td>看门狗判「齐备」≠ 任务跑成功</td><td><span class="b b-red">高</span></td><td>只认文件系统事实。定时任务失败、产物来自手动补跑时，看门狗仍判「正常」→ 掩盖失败。<b>待补「调度触发」判据</b></td></tr>
+    <tr><td>跟踪表无现价行</td><td><span class="b b-amber">中</span></td><td>个股掉出当日 universe 取不到价 → 当前状态留空（不沿用废弃旧词）。实测 21 行（回抽 12 / 主升 9）</td></tr>
+    <tr><td>「目标1」实为 +10% 止盈</td><td><span class="b b-amber">中</span></td><td>95% 主升浪行的目标1 = <code>现价×1.10</code>（ma60 ≤ 现价时的兜底），故「第一目标」档普遍在 +10%。这是回测病因 ②「目标1 过近」的成因，属<b>方案 B（策略变更）范围，本次未动</b></td></tr>
+    <tr><td>Step H prompt 与脚本漂移</td><td><span class="b b-amber">中</span></td><td>自动化 prompt 的 Step H 文字仍写「17 列 / 空间% / 状态只升不降 / 幂等键含日期」，而脚本已改 21 列 + 阶梯 6 档。<b>以脚本为准，prompt 待同步</b></td></tr>
+    <tr><td><code>verify_signals.py</code> 样本口径</td><td><span class="b b-blue">低</span></td><td>跟踪表已拆为「主表 + 归档表」，回测样本应改为两者合并（归档表目前 0 行，可后补）</td></tr>
+    <tr><td>个股 kline 接口返空</td><td><span class="b b-blue">低</span></td><td>如 sz300725 长期返空 → 该只量能为空。边缘个股，不影响漏斗主干</td></tr>
+    <tr><td>回测样本期过短</td><td><span class="b b-blue">低</span></td><td>仅 6 周、单一上涨市 → 胜率与板块结论<b>不可外推</b></td></tr>
+  </table>
+
+  <h3>7.3 待办清单</h3>
+  <ol>
+    <li><b>更新自动化 Step H 的 prompt 文字</b>至脚本口径（21 列 / 目标阶梯 / 滚动覆盖键含板块）。</li>
+    <li><b>定位 15:15 定时任务仍无产物的原因</b>（错峰未解决限流）。</li>
+    <li><code>verify_signals.py</code> 样本口径改为「主表 + 归档表」合并。</li>
+    <li>看门狗补「调度器是否触发」判据，或改用 launchd 绕开模型层。</li>
+    <li>未落的跟踪表清理项：A3（死逻辑）、A5（30 行现价 &gt; 买点上限标注）、B1（136 行空白确认态标注）、C2（路径判定）。</li>
+  </ol>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>验收清单</h2>
+  <p>每个交易日跑完后逐项勾选。<b>任一硬项为否 → 当日报告视为不完整。</b></p>
+  <table>
+    <tr><th style="width:44px">#</th><th style="width:180px">检查项</th><th>通过判据</th><th style="width:70px">性质</th></tr>
+    <tr><td>1</td><td>数据完整性</td><td>11 个板块 universe 均 40 只，<b>缺 MA20 只数 == 0</b></td><td><b>硬项</b></td></tr>
+    <tr><td>2</td><td>量能覆盖</td><td><code>volGrade</code> 非空 ≥ 435/440；缺口用 swing_fill 补后仍缺的须是接口返空个股</td><td><b>硬项</b></td></tr>
+    <tr><td>3</td><td>图表数据</td><td>11 个 <code>_chart.json</code> 存在；ytd 根数 &gt; 100</td><td>软项</td></tr>
+    <tr><td>4</td><td>报告产出</td><td>当日 <code>*板块深度分析_*.html</code> = 11 份；占位符残留 = 0；11 份均含免责声明</td><td><b>硬项</b></td></tr>
+    <tr><td>5</td><td>中枢数据</td><td><code>_summary.json</code> mtime 为今日；11 板块；cands/mups 均含 <code>code/volScore/volGrade/confirm</code></td><td><b>硬项</b></td></tr>
+    <tr><td>6</td><td>bot 推送</td><td>11 份上传成功且拿到 URL；msg1 / msg2 均 OK</td><td><b>硬项</b></td></tr>
+    <tr><td>7</td><td>群推送</td><td>summary + links 两张卡片均 <code>StatusCode 0</code></td><td><b>硬项</b></td></tr>
+    <tr><td>8</td><td>Step G</td><td><code>_g_final.json</code> mtime = 今日；N=0 时须有「无 🔴 板块、跳过建组」的明确输出</td><td><b>硬项</b></td></tr>
+    <tr><td>9</td><td>Step H</td><td>跟踪表 mtime = 今日；日志有「当日候选 X 行 → 实际新增 Y 行」；<b>重跑应新增 0</b></td><td><b>硬项</b></td></tr>
+    <tr><td>10</td><td>看门狗</td><td><code>watchdog_ashare.py --dry-run</code> 判定「当日产物齐备」</td><td>软项</td></tr>
+    <tr><td>11</td><td>裁决合理性</td><td>抽 2 个板块人工对照四层指标与裁决格位是否自洽（防 tech4 改动后口径漂移）</td><td>软项</td></tr>
+  </table>
+  <div class="box danger"><b>⚠️ 验收清单的第 10 项有个陷阱</b>
+    看门狗判「齐备」<b>不代表定时任务跑成功了</b>。若当日是手动补跑的产物，第 10 项会显示通过但第 1~9 项是人工补的 —— 需另查「定时任务是否触发」。这是当前架构的已知盲区。</div>
+</section>
+
+<section id="s9">
+  <h2><span class="n">9</span>变更时间线</h2>
+  <table>
+    <tr><th style="width:110px">日期</th><th style="width:130px">类别</th><th>变更</th></tr>
+    <tr><td>2026-08-12</td><td>架构</td><td>移除 <code>scripts/narratives.py</code>，<code>narratives.json</code> 成为唯一叙事源（消除双源矛盾）</td></tr>
+    <tr><td>2026-08-13</td><td>口径</td><td>固化<b>盘中量能评分</b>三条修正（缩量比剔当日 bar / 放量比用量比 / 首 60 分钟封顶 30）</td></tr>
+    <tr><td>2026-08-18</td><td>板块</td><td>移除 证券/电力/光模块，新增 电网设备；固化<b>评级×技术面三步裁决</b>与四组决策树；Step G 入选改为「裁决 emoji==🔴」；跟踪表扩展口径</td></tr>
+    <tr><td>2026-08-19</td><td>口径</td><td>Step H 追加「加码・匹配执行」入选；幂等键修正为含板块</td></tr>
+    <tr><td>2026-08-27</td><td>口径</td><td>新增<b>确认态</b>门槛：仅「已确认」候选进推送/自选股/跟踪表</td></tr>
+    <tr><td>2026-08-31</td><td>板块</td><td>新增 AI应用</td></tr>
+    <tr><td>2026-09-02</td><td>口径</td><td><b>两次收紧</b>：主升浪加 MA20&gt;MA10 + chg5d≥-3%；<code>_mup_restart</code>；<code>pullback_confirm</code> 改真实 thrust 标准。三市场同步</td></tr>
+    <tr><td>2026-09-04</td><td>板块</td><td>移除 宇树科技概念</td></tr>
+    <tr><td>2026-09-16</td><td>工具</td><td>新增 <code>swing_fill.py</code>（增量补量能），规避 swing.py 整文件重写的覆盖坑</td></tr>
+    <tr><td>2026-09-23</td><td>板块</td><td>移除 元件、新增 CPO → <b>11 板块常驻</b></td></tr>
+    <tr><td rowspan="4">2026-09-29</td><td>调度</td><td>主任务错峰 15:10 → <b>15:15</b>（避整点 429 限流）</td></tr>
+    <tr><td>质量</td><td>新增<b>独立看门狗</b>（16:00，四判据 + 双通道 + 去重）</td></tr>
+    <tr><td>跟踪表</td><td>拆为双 sheet；「空间%」→「前高位置%」</td></tr>
+    <tr><td>跟踪表</td><td><b>状态机重做 + 滚动覆盖 + 归档</b>：18 → 21 列，状态改「目标阶梯 6 档」每日刷新，新增曾达档位/首破位日/状态变更日，隐藏 sheet「已归档」，去重键改（板块, code）</td></tr>
+    <tr><td>2026-09-29</td><td>交付</td><td>新增 <code>verify_signals.py</code> + <code>verify_report.py</code> 离线回测，产出首份信号有效性报告</td></tr>
+  </table>
+</section>
+
+<footer>
+  本报告仅供研究参考，不构成个人投资建议。<br>
+  数据来源：westock（腾讯自选股数据栈）｜ 文档口径与 <code>scripts/</code> 源码逐行核对一致 ｜ 生成时间 2026-09-29
+</footer>
+
+</main>
+</div>
+</body>
+</html>
